@@ -37,33 +37,21 @@ from sklearn.preprocessing import StandardScaler
 telco= pd.read_csv("telco_csv.csv")
 
 
-# In[4]:
-
-
 telco.head()
 
-
-# In[5]:
 
 
 telco.info()
 
 
-# In[6]:
-
 
 telco.describe()
-
-
-# In[7]:
 
 
 #Detailed profiling using pandas profiling
 
 pandas_profiling.ProfileReport(telco)
 
-
-# In[8]:
 
 
 numeric_var_names=[key for key in dict(telco.dtypes) if dict(telco.dtypes)[key] in ['float64', 'int64', 'float32', 'int32']]
@@ -72,21 +60,13 @@ print numeric_var_names
 print cat_var_names
 
 
-# In[9]:
-
-
 telco_num=telco[numeric_var_names]
 telco_num.head(5)
 
 
-# In[10]:
-
 
 telco_cat = telco[cat_var_names]
 telco_cat.head(5)
-
-
-# In[11]:
 
 
 # Creating Data audit Report
@@ -98,13 +78,7 @@ def var_summary(x):
 num_summary=telco_num.apply(lambda x: var_summary(x)).T
 
 
-# In[12]:
-
-
 num_summary
-
-
-# In[13]:
 
 
 #Handling Outliers - Method2
@@ -116,14 +90,9 @@ def outlier_capping(x):
 telco_num=telco_num.apply(lambda x: outlier_capping(x))
 
 
-# In[14]:
 
 
 telco.isnull().any()
-
-
-# In[15]:
-
 
 #Handling missings - Method2
 def Missing_imputation(x):
@@ -133,46 +102,25 @@ def Missing_imputation(x):
 telco_num=telco_num.apply(lambda x: Missing_imputation(x))
 
 
-# In[16]:
-
 
 telco_num.corr()
 
 
-# In[17]:
-
-
 # visualize correlation matrix in Seaborn using a heatmap
 sns.heatmap(telco_num.corr())
-
-
-# In[18]:
-
 
 sc=StandardScaler()
 
 telco_scaled=sc.fit_transform(telco_num)
 
 
-# In[19]:
-
-
 pd.DataFrame(telco_scaled).describe()
-
-
-# In[20]:
 
 
 from sklearn.decomposition import PCA
 
 
-# In[21]:
-
-
 pc = PCA(n_components=30)
-
-
-# In[22]:
 
 
 pc.fit(telco_scaled)
@@ -183,20 +131,10 @@ var= pc.explained_variance_ratio_
 #Cumulative Variance explains
 var1=np.cumsum(np.round(pc.explained_variance_ratio_, decimals=4)*100)
 
-
-# In[23]:
-
-
 var
 
 
-# In[24]:
-
-
 var1
-
-
-# In[25]:
 
 
 #Alternative method
@@ -210,14 +148,7 @@ for n in range(2,30):
 var_ratio
 
 
-# In[29]:
-
-
 plt.plot(var1)
-
-
-# In[26]:
-
 
 
 pc_final=PCA(n_components=10).fit(telco_scaled)
@@ -225,26 +156,12 @@ pc_final=PCA(n_components=10).fit(telco_scaled)
 reduced_cr=pc_final.fit_transform(telco_scaled)
 
 
-# In[28]:
-
-
 pd.DataFrame(reduced_cr).head(5)
-
-
-# In[32]:
 
 
 col_list=telco_num.columns
 
-
-# In[33]:
-
-
 col_list
-
-
-# In[29]:
-
 
 #pc_final.components_
 
@@ -253,21 +170,12 @@ col_list
 Loadings =  pd.DataFrame((pc_final.components_.T * np.sqrt(pc_final.explained_variance_)).T,columns=telco_num.columns).T
 
 
-# In[30]:
-
-
 Loadings.to_csv("Loadings.csv")
 
 
 # ### Clustering 
 
-# In[31]:
-
-
 list_var = ['custcat','pager','wiremon','equipmon','ebill','multline','marital','income','retire','gender','region']
-
-
-# In[39]:
 
 
 telco_scaled1=pd.DataFrame(telco_scaled, columns=telco_num.columns)
@@ -277,32 +185,17 @@ telco_scaled2=telco_scaled1[list_var]
 telco_scaled2.head(5)
 
 
-# In[32]:
-
-
 from sklearn.cluster import KMeans
 
 
-# In[33]:
-
-
 km_3=KMeans(n_clusters=3,random_state=123)
-
-
-# In[40]:
-
 
 km_3.fit(telco_scaled2)
 #km_4.labels_
 
 
-# In[41]:
-
-
 pd.Series(km_3.labels_).value_counts()
 
-
-# In[43]:
 
 
 km_4=KMeans(n_clusters=4,random_state=123).fit(telco_scaled2)
@@ -321,9 +214,6 @@ km_8=KMeans(n_clusters=8,random_state=123).fit(telco_scaled2)
 #km_5.labels_
 
 
-# In[44]:
-
-
 # Conactenating labels found through Kmeans with data 
 #cluster_df_4=pd.concat([telco_num,pd.Series(km_4.labels_,name='Cluster_4')],axis=1)
 
@@ -336,25 +226,14 @@ telco_num['cluster_7'] = km_7.labels_
 telco_num['cluster_8'] = km_8.labels_
 
 
-# In[45]:
-
-
 telco_num.head(5)
 
-
-# In[47]:
 
 
 pd.Series.sort_index(telco_num.cluster_3.value_counts())
 
 
-# In[48]:
-
-
 pd.Series(telco_num.cluster_3.size)
-
-
-# In[49]:
 
 
 size=pd.concat([pd.Series(telco_num.cluster_3.size), pd.Series.sort_index(telco_num.cluster_3.value_counts()), pd.Series.sort_index(telco_num.cluster_4.value_counts()),
@@ -362,13 +241,7 @@ size=pd.concat([pd.Series(telco_num.cluster_3.size), pd.Series.sort_index(telco_
            pd.Series.sort_index(telco_num.cluster_7.value_counts()), pd.Series.sort_index(telco_num.cluster_8.value_counts())])
 
 
-# In[50]:
-
-
 size
-
-
-# In[51]:
 
 
 Seg_size=pd.DataFrame(size, columns=['Seg_size'])
@@ -376,19 +249,11 @@ Seg_Pct = pd.DataFrame(size/telco_num.cluster_3.size, columns=['Seg_Pct'])
 Seg_size.T
 
 
-# In[52]:
-
-
 Seg_Pct.T
 
 
-# In[76]:
-
 
 telco_num.head(5)
-
-
-# In[53]:
 
 
 # Mean value gives a good indication of the distribution of data. So we are finding mean value for each variable for each cluster
@@ -405,22 +270,12 @@ Profling_output_final.columns = ['Overall', 'KM3_1', 'KM3_2', 'KM3_3',
                                 'KM7_1', 'KM7_2', 'KM7_3', 'KM7_4', 'KM7_5','KM7_6','KM7_7',
                                 'KM8_1', 'KM8_2', 'KM8_3', 'KM8_4', 'KM8_5','KM8_6','KM8_7','KM8_8',]
 
-
-# In[54]:
-
-
 Profling_output_final
-
-
-# In[55]:
-
 
 Profling_output_final.to_csv('Profiling_output.csv')
 
 
-# ### Finding Optimal number of clusters
-
-# In[136]:
+# ### Finding Optimal number of cluster
 
 
 # Dendogram
@@ -433,9 +288,6 @@ g = sns.clustermap(telco_scaled, cmap=cmap, linewidths=.5)
 # 
 # - The dendogram shows there are 5 disctinct clusters. 
 
-# In[56]:
-
-
 cluster_range = range( 1, 20 )
 cluster_errors = []
 
@@ -445,15 +297,9 @@ for num_clusters in cluster_range:
     cluster_errors.append( clusters.inertia_ )
 
 
-# In[57]:
-
-
 clusters_df = pd.DataFrame( { "num_clusters":cluster_range, "cluster_errors": cluster_errors } )
 
 clusters_df[0:10]
-
-
-# In[58]:
 
 
 # allow plots to appear in the notebook
@@ -469,15 +315,10 @@ plt.plot( clusters_df.num_clusters, clusters_df.cluster_errors, marker = "o" )
 
 # ### Silhouette Coefficient
 
-# In[59]:
-
 
 # calculate SC for K=3
 from sklearn import metrics
 metrics.silhouette_score(telco_scaled2, km_3.labels_)
-
-
-# In[63]:
 
 
 # calculate SC for K=3 through K=12
@@ -489,13 +330,7 @@ for k in k_range:
     scores.append(metrics.silhouette_score(telco_scaled2, km.labels_))
 
 
-# In[64]:
-
-
 scores
-
-
-# In[65]:
 
 
 # plot the results
@@ -505,36 +340,21 @@ plt.ylabel('Silhouette Coefficient')
 plt.grid(True)
 
 
-# In[83]:
-
-
 # DBSCAN with eps=1 and min_samples=3
 from sklearn.cluster import DBSCAN
 db = DBSCAN(eps=2.05, min_samples=10)
 db.fit(telco_scaled2)
 
 
-# In[84]:
-
-
 pd.Series(db.labels_).value_counts()
-
-
-# In[85]:
-
 
 # review the cluster labels
 db.labels_
 
 
-# In[86]:
-
 
 # save the cluster labels and sort by cluster
 telco_num['DB_cluster'] = db.labels_
-
-
-# In[87]:
 
 
 # review the cluster centers
